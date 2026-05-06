@@ -1,0 +1,11 @@
+patternInfo Coaster{
+Shape: round;
+Max_ring_size: 24;
+}
+pattern Coaster{
+row 1: mr 6
+row 2: sc-inc 6
+row 3: [sc-inc 1, sc 1]x-6
+row 4: [sc-inc 1, sc 2]x6
+row 5: [slst 1, dc 2, slst 1]x6
+}

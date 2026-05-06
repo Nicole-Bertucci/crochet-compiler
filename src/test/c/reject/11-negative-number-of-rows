@@ -1,0 +1,13 @@
+patternInfo Basket{
+Shape: linear;
+Max_width: 24;
+Rows: 12;
+}
+pattern Basket{
+row -1: ch 22
+row 0: sc-inc 1, sc 20, sc-inc 1
+row 1: dc 24
+row 2-10: sc 24
+row 11: dc 24
+row 12: sc-dec 1, sc 20, sc-dec 1
+}

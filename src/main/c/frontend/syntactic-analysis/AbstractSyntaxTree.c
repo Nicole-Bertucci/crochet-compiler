@@ -20,51 +20,98 @@ ModuleDestructor initializeAbstractSyntaxTreeModule() {
 
 /* PUBLIC FUNCTIONS */
 
-void destroyConstant(Constant * constant) {
+void destroyInfoProp(InfoProp * prop) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (constant != NULL) {
-		free(constant);
+	if (prop != NULL) {
+		free(prop);
 	}
 }
 
-void destroyExpression(Expression * expression) {
+void destroyInfoPropList(InfoPropList * list) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (expression != NULL) {
-		switch (expression->type) {
-			case ADDITION:
-			case DIVISION:
-			case MULTIPLICATION:
-			case SUBTRACTION:
-				destroyExpression(expression->leftExpression);
-				destroyExpression(expression->rightExpression);
-				break;
-			case FACTOR:
-				destroyFactor(expression->factor);
-				break;
-		}
-		free(expression);
+	if (list != NULL) {
+		destroyInfoPropList(list->next);
+		destroyInfoProp(list->prop);
+		free(list);
 	}
 }
 
-void destroyFactor(Factor * factor) {
+void destroyPatternInfo(PatternInfo * patternInfo) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (factor != NULL) {
-		switch (factor->type) {
-			case CONSTANT:
-				destroyConstant(factor->constant);
-				break;
-			case EXPRESSION:
-				destroyExpression(factor->expression);
-				break;
+	if (patternInfo != NULL) {
+		free(patternInfo->name);
+		destroyInfoPropList(patternInfo->props);
+		free(patternInfo);
+	}
+}
+
+void destroyRowRange(RowRange * rowRange) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (rowRange != NULL) {
+		free(rowRange);
+	}
+}
+
+void destroyStitchItem(StitchItem * stitchItem) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (stitchItem != NULL) {
+		if (stitchItem->kind == STITCH_ITEM_REPEAT) {
+			destroyStitchList(stitchItem->repeat.list);
 		}
-		free(factor);
+		free(stitchItem);
+	}
+}
+
+void destroyStitchList(StitchList * stitchList) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (stitchList != NULL) {
+		destroyStitchList(stitchList->next);
+		destroyStitchItem(stitchList->item);
+		free(stitchList);
+	}
+}
+
+void destroyRowDecl(RowDecl * rowDecl) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (rowDecl != NULL) {
+		destroyRowRange(rowDecl->range);
+		destroyStitchList(rowDecl->stitches);
+		free(rowDecl);
+	}
+}
+
+void destroyRowList(RowList * rowList) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (rowList != NULL) {
+		destroyRowList(rowList->next);
+		destroyRowDecl(rowList->row);
+		free(rowList);
+	}
+}
+
+void destroyPatternBody(PatternBody * patternBody) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (patternBody != NULL) {
+		free(patternBody->name);
+		destroyRowList(patternBody->rows);
+		free(patternBody);
+	}
+}
+
+void destroyPatternDef(PatternDef * patternDef) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (patternDef != NULL) {
+		destroyPatternDef(patternDef->next);
+		destroyPatternInfo(patternDef->info);
+		destroyPatternBody(patternDef->body);
+		free(patternDef);
 	}
 }
 
 void destroyProgram(Program * program) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (program != NULL) {
-		destroyExpression(program->expression);
+		destroyPatternDef(program->patterns);
 		free(program);
 	}
 }

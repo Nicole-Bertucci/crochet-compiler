@@ -1,0 +1,11 @@
+patternInfo Map{
+Shape: round;
+Max_ring_size: 4;
+Rows: 5;
+}
+pattern Map{
+row 1: mr 4
+row 3: sc 4
+row 2: sc 4
+row 4: sc 4
+}

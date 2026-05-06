@@ -3,7 +3,6 @@
 /* MODULE INTERNAL STATE */
 
 static bool _logIgnoredLexemes = true;
-static InputBuffer * _inputBuffer = NULL;
 static LexicalAnalyzer * _lexicalAnalyzer = NULL;
 static Logger * _logger = NULL;
 
@@ -14,15 +13,10 @@ void _shutdownFlexActionsModule() {
 		destroyLogger(_logger);
 		_logger = NULL;
 	}
-	if (_inputBuffer != NULL) {
-		destroyInputBuffer(_inputBuffer);
-		_inputBuffer = NULL;
-	}
 	_lexicalAnalyzer = NULL;
 }
 
 ModuleDestructor initializeFlexActionsModule(LexicalAnalyzer * lexicalAnalyzer) {
-	_inputBuffer = NULL;
 	_lexicalAnalyzer = lexicalAnalyzer;
 	_logger = createLogger("FlexActions");
 	_logIgnoredLexemes = getBooleanOrDefault("LOG_IGNORED_LEXEMES", _logIgnoredLexemes);
@@ -31,14 +25,10 @@ ModuleDestructor initializeFlexActionsModule(LexicalAnalyzer * lexicalAnalyzer) 
 
 /* PRIVATE FUNCTIONS */
 
-static void _logTokenAction(const char * actionName, Token * token);
-
-/**
- * Logs a lexical-analyzer action over a token in DEBUGGING level.
- */
 static void _logTokenAction(const char * actionName, Token * token) {
 	char * _lexeme = escape(token->lexeme);
-	logDebugging(_logger, WARNING_COLOR "%s" DEFAULT_COLOR ": Token(context=%d, label=%d, length=%d, lexeme=%s\"%s\"%s, line=%d, semanticValue=%p)",
+	logDebugging(_logger, WARNING_COLOR "%s" DEFAULT_COLOR
+		": Token(context=%d, label=%d, length=%d, lexeme=%s\"%s\"%s, line=%d, semanticValue=%p)",
 		actionName,
 		token->context,
 		token->label,
@@ -47,38 +37,25 @@ static void _logTokenAction(const char * actionName, Token * token) {
 		token->line,
 		token->semanticValue);
 	free(_lexeme);
-	_lexeme = NULL;
 }
 
-/* PUBLIC FUNCTIONS */
-
-CompilationStatus ArithmeticOperatorLexemeAction(TokenLabel label) {
+/**
+ * Generic helper: create a token with the given label, push it,
+ * and destroy it. The semantic value is left as zero-initialised
+ * (appropriate for pure TokenLabel terminals).
+ */
+static CompilationStatus _simplePushToken(const char * actionName, TokenLabel label) {
 	Token * token = createToken(_lexicalAnalyzer, label);
-	_logTokenAction(__FUNCTION__, token);
+	token->semanticValue->token = label;
+	_logTokenAction(actionName, token);
 	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
 	return status;
 }
 
-CompilationStatus EnterImportExpressionLexemeAction(FlexContext context) {
-	if (_logIgnoredLexemes) {
-		Token * token = createToken(_lexicalAnalyzer, OPEN_BRACE);
-		_logTokenAction(__FUNCTION__, token);
-		destroyToken(token);
-	}
-	enterLexicalAnalyzerContext(_lexicalAnalyzer, context);
-	return IN_PROGRESS;
-}
+/* PUBLIC FUNCTIONS */
 
-CompilationStatus EnterMultilineCommentLexemeAction(FlexContext context) {
-	if (_logIgnoredLexemes) {
-		Token * token = createToken(_lexicalAnalyzer, OPEN_COMMENT);
-		_logTokenAction(__FUNCTION__, token);
-		destroyToken(token);
-	}
-	enterLexicalAnalyzerContext(_lexicalAnalyzer, context);
-	return IN_PROGRESS;
-}
+/* ── Shared / infrastructure ──────────────────────────────────── */
 
 CompilationStatus EOFLexemeAction() {
 	CompilationStatus status = IN_PROGRESS;
@@ -105,23 +82,22 @@ CompilationStatus IgnoredLexemeAction() {
 	return IN_PROGRESS;
 }
 
-CompilationStatus IntegerLexemeAction() {
-	Token * token = createToken(_lexicalAnalyzer, INTEGER);
-	token->semanticValue->integer = atoi(token->lexeme);
+CompilationStatus UnknownLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, UNKNOWN);
 	_logTokenAction(__FUNCTION__, token);
-	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
-	return status;
+	return FAILED;
 }
 
-CompilationStatus LeaveImportExpressionLexemeAction() {
-	pushInputBuffer(_inputBuffer);
-	leaveLexicalAnalyzerContext(_lexicalAnalyzer);
+/* ── Comments ─────────────────────────────────────────────────── */
+
+CompilationStatus EnterMultilineCommentLexemeAction(FlexContext context) {
 	if (_logIgnoredLexemes) {
-		Token * token = createToken(_lexicalAnalyzer, CLOSE_BRACE);
+		Token * token = createToken(_lexicalAnalyzer, OPEN_COMMENT);
 		_logTokenAction(__FUNCTION__, token);
 		destroyToken(token);
 	}
+	enterLexicalAnalyzerContext(_lexicalAnalyzer, context);
 	return IN_PROGRESS;
 }
 
@@ -135,27 +111,54 @@ CompilationStatus LeaveMultilineCommentLexemeAction() {
 	return IN_PROGRESS;
 }
 
-CompilationStatus ParenthesisLexemeAction(TokenLabel label) {
-	Token * token = createToken(_lexicalAnalyzer, label);
+/* ── Keywords ─────────────────────────────────────────────────── */
+
+CompilationStatus KeywordLexemeAction(TokenLabel label) {
+	return _simplePushToken(__FUNCTION__, label);
+}
+
+/* ── Shape types ──────────────────────────────────────────────── */
+
+CompilationStatus ShapeTypeLexemeAction(TokenLabel label) {
+	return _simplePushToken(__FUNCTION__, label);
+}
+
+/* ── Stitch types ─────────────────────────────────────────────── */
+
+CompilationStatus StitchLexemeAction(TokenLabel label) {
+	return _simplePushToken(__FUNCTION__, label);
+}
+
+/* ── Modifiers ────────────────────────────────────────────────── */
+
+CompilationStatus ModifierLexemeAction(TokenLabel label) {
+	return _simplePushToken(__FUNCTION__, label);
+}
+
+/* ── Punctuation & operators ──────────────────────────────────── */
+
+CompilationStatus PunctuationLexemeAction(TokenLabel label) {
+	return _simplePushToken(__FUNCTION__, label);
+}
+
+/* ── Integer literals ─────────────────────────────────────────── */
+
+CompilationStatus IntegerLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, INTEGER);
+	token->semanticValue->integer = atoi(token->lexeme);
 	_logTokenAction(__FUNCTION__, token);
 	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
 	return status;
 }
 
-CompilationStatus SubexpressionLexemeAction() {
-	Token * token = createToken(_lexicalAnalyzer, IGNORED);
-	_inputBuffer = createInputBuffer(_lexicalAnalyzer, token->lexeme);
-	if (_logIgnoredLexemes) {
-		_logTokenAction(__FUNCTION__, token);
-	}
-	destroyToken(token);
-	return IN_PROGRESS;
-}
+/* ── Identifiers (pattern names) ──────────────────────────────── */
 
-CompilationStatus UnknownLexemeAction() {
-	Token * token = createToken(_lexicalAnalyzer, UNKNOWN);
+CompilationStatus IdentifierLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, IDENTIFIER);
+	token->semanticValue->string = strdup(token->lexeme);
 	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
-	return FAILED;
+	return status;
 }

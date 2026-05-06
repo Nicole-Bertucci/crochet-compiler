@@ -1,0 +1,8 @@
+patternInfo Toy{
+Shape: linear;
+Max_width: 0;
+Rows: 0;
+}
+pattern Toy{
+
+}

@@ -21,65 +21,196 @@ ModuleDestructor initializeBisonActionsModule(CompilerState * compilerState) {
 	return _shutdownBisonActionsModule;
 }
 
-/* IMPORTED FUNCTIONS */
-
 /* PRIVATE FUNCTIONS */
 
-static void _logSyntacticAnalyzerAction(const char * functionName);
-
-/**
- * Logs a syntactic-analyzer action in DEBUGGING level.
- */
 static void _logSyntacticAnalyzerAction(const char * functionName) {
 	logDebugging(_logger, "%s", functionName);
 }
 
 /* PUBLIC FUNCTIONS */
 
-Constant * IntegerConstantSemanticAction(const int value) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Constant * constant = calloc(1, sizeof(Constant));
-	constant->value = value;
-	return constant;
-}
+/* ── Program ────────────────────────────────────────────────── */
 
-Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Expression * rightExpression, ExpressionType type) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Expression * expression = calloc(1, sizeof(Expression));
-	expression->leftExpression = leftExpression;
-	expression->rightExpression = rightExpression;
-	expression->type = type;
-	return expression;
-}
-
-Expression * FactorExpressionSemanticAction(Factor * factor) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Expression * expression = calloc(1, sizeof(Expression));
-	expression->factor = factor;
-	expression->type = FACTOR;
-	return expression;
-}
-
-Factor * ConstantFactorSemanticAction(Constant * constant) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Factor * factor = calloc(1, sizeof(Factor));
-	factor->constant = constant;
-	factor->type = CONSTANT;
-	return factor;
-}
-
-Factor * ExpressionFactorSemanticAction(Expression * expression) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Factor * factor = calloc(1, sizeof(Factor));
-	factor->expression = expression;
-	factor->type = EXPRESSION;
-	return factor;
-}
-
-Program * ExpressionProgramSemanticAction(Expression * expression) {
+Program * ProgramSemanticAction(PatternDef * patterns) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Program * program = calloc(1, sizeof(Program));
-	program->expression = expression;
+	program->patterns = patterns;
 	_compilerState->abstractSyntaxtTree = program;
 	return program;
+}
+
+/* ── Pattern definition list ────────────────────────────────── */
+
+PatternDef * PatternDefSemanticAction(PatternInfo * info, PatternBody * body) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	PatternDef * pd = calloc(1, sizeof(PatternDef));
+	pd->info = info;
+	pd->body = body;
+	pd->next = NULL;
+	return pd;
+}
+
+PatternDef * PatternDefListSemanticAction(PatternDef * head, PatternDef * rest) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	head->next = rest;
+	return head;
+}
+
+/* ── patternInfo block ──────────────────────────────────────── */
+
+PatternInfo * PatternInfoSemanticAction(char * name, InfoPropList * props) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	PatternInfo * pi = calloc(1, sizeof(PatternInfo));
+	pi->name  = name;   /* already strdup'd in FlexActions */
+	pi->props = props;
+	return pi;
+}
+
+InfoPropList * InfoPropListSingleSemanticAction(InfoProp * prop) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	InfoPropList * ipl = calloc(1, sizeof(InfoPropList));
+	ipl->prop = prop;
+	ipl->next = NULL;
+	return ipl;
+}
+
+InfoPropList * InfoPropListSemanticAction(InfoProp * prop, InfoPropList * next) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	InfoPropList * ipl = calloc(1, sizeof(InfoPropList));
+	ipl->prop = prop;
+	ipl->next = next;
+	return ipl;
+}
+
+InfoProp * ShapePropSemanticAction(ShapeType shape) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	InfoProp * ip = calloc(1, sizeof(InfoProp));
+	ip->kind       = INFO_SHAPE;
+	ip->shapeValue = shape;
+	return ip;
+}
+
+InfoProp * MaxWidthPropSemanticAction(int value) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	InfoProp * ip = calloc(1, sizeof(InfoProp));
+	ip->kind     = INFO_MAX_WIDTH;
+	ip->intValue = value;
+	return ip;
+}
+
+InfoProp * MaxRingSizePropSemanticAction(int value) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	InfoProp * ip = calloc(1, sizeof(InfoProp));
+	ip->kind     = INFO_MAX_RING_SIZE;
+	ip->intValue = value;
+	return ip;
+}
+
+InfoProp * RowsPropSemanticAction(int value) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	InfoProp * ip = calloc(1, sizeof(InfoProp));
+	ip->kind     = INFO_ROWS;
+	ip->intValue = value;
+	return ip;
+}
+
+/* ── pattern body block ─────────────────────────────────────── */
+
+PatternBody * PatternBodySemanticAction(char * name, RowList * rows) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	PatternBody * pb = calloc(1, sizeof(PatternBody));
+	pb->name = name;   /* already strdup'd in FlexActions */
+	pb->rows = rows;
+	return pb;
+}
+
+/* ── Row list ───────────────────────────────────────────────── */
+
+RowList * RowListSingleSemanticAction(RowDecl * row) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	RowList * rl = calloc(1, sizeof(RowList));
+	rl->row  = row;
+	rl->next = NULL;
+	return rl;
+}
+
+RowList * RowListSemanticAction(RowDecl * row, RowList * next) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	RowList * rl = calloc(1, sizeof(RowList));
+	rl->row  = row;
+	rl->next = next;
+	return rl;
+}
+
+RowDecl * RowDeclSemanticAction(RowRange * range, StitchList * stitches) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	RowDecl * rd = calloc(1, sizeof(RowDecl));
+	rd->range    = range;
+	rd->stitches = stitches;
+	return rd;
+}
+
+RowRange * SingleRowRangeSemanticAction(int n) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	RowRange * rr = calloc(1, sizeof(RowRange));
+	rr->from = n;
+	rr->to   = n;
+	return rr;
+}
+
+RowRange * RangeRowRangeSemanticAction(int from, int to) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	RowRange * rr = calloc(1, sizeof(RowRange));
+	rr->from = from;
+	rr->to   = to;
+	return rr;
+}
+
+/* ── Stitch list ────────────────────────────────────────────── */
+
+StitchList * StitchListSingleSemanticAction(StitchItem * item) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	StitchList * sl = calloc(1, sizeof(StitchList));
+	sl->item = item;
+	sl->next = NULL;
+	return sl;
+}
+
+StitchList * StitchListSemanticAction(StitchItem * item, StitchList * next) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	StitchList * sl = calloc(1, sizeof(StitchList));
+	sl->item = item;
+	sl->next = next;
+	return sl;
+}
+
+/* ── Stitch items ───────────────────────────────────────────── */
+
+StitchItem * SimpleStitchSemanticAction(StitchType type, ModifierType mod, int count) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	StitchItem * si = calloc(1, sizeof(StitchItem));
+	si->kind            = STITCH_ITEM_SIMPLE;
+	si->simple.type     = type;
+	si->simple.modifier = mod;
+	si->simple.count    = count;
+	return si;
+}
+
+StitchItem * SimpleStitchNoCountSemanticAction(StitchType type, ModifierType mod) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	StitchItem * si = calloc(1, sizeof(StitchItem));
+	si->kind            = STITCH_ITEM_SIMPLE;
+	si->simple.type     = type;
+	si->simple.modifier = mod;
+	si->simple.count    = 1;   /* default when omitted */
+	return si;
+}
+
+StitchItem * RepeatBlockSemanticAction(StitchList * list, int times) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	StitchItem * si = calloc(1, sizeof(StitchItem));
+	si->kind         = STITCH_ITEM_REPEAT;
+	si->repeat.list  = list;
+	si->repeat.times = times;
+	return si;
 }

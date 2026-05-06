@@ -1,0 +1,8 @@
+patternInfo Ring{
+Shape: linear;
+Max_ring_size: 4;
+Rows: 1;
+}
+pattern Ring{
+row 1: ch 4
+}

@@ -1,0 +1,8 @@
+patternInfo Coaster{
+Shape: round;
+Max_ring_size: 6;
+}
+pattern Coaster{
+row 1: mr 6
+
+}

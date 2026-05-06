@@ -1,0 +1,9 @@
+patternInfo MateSleeve{
+Shape: linear;
+Max_width: 1;
+Rows: 2;
+}
+pattern MateSleeve{
+row 1: sc 1
+row 2: sc-dec 1
+}
