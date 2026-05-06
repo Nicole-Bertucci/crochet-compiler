@@ -1,0 +1,15 @@
+/*This is a comment*/
+patternInfo Scarf{
+Shape: linear;
+Max_width: 24;
+Rows: 12;
+}
+
+pattern Scarf{
+row 1: ch 22
+row 2: sc-inc 1, sc 20, sc-inc 1
+row 3: dc 24
+row 4-10: sc 24
+row 11: dc 24
+row 12: sc-dec 1, sc 20, sc-dec 1
+}
