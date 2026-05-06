@@ -114,6 +114,7 @@ identifier		{letter}([[:alnum:]]|_)*
 ","									{ return PunctuationLexemeAction(COMMA); }
 ":"									{ return PunctuationLexemeAction(COLON); }
 ";"									{ return PunctuationLexemeAction(SEMICOLON); }
+"x"{digit}							{ yyless(1); return PunctuationLexemeAction(REPEAT_OP); }
 "x"									{ return PunctuationLexemeAction(REPEAT_OP); }
 "-"									{ return PunctuationLexemeAction(DASH); }
 
