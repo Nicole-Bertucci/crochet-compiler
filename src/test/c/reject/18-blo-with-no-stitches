@@ -1,0 +1,10 @@
+patternInfo Sock{
+Shape: linear;
+Max_width: 4;
+Rows: 3;
+}
+pattern Sock{
+row 1: sc-blo 4
+row 2: sc 4
+row 3: sc 4
+}
