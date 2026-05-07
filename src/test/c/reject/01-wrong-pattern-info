@@ -1,5 +1,5 @@
 patternInfo Ring{
-Shape: linear;
+Shape: linear; /* should be round*/
 Max_ring_size: 4;
 Rows: 1;
 }
