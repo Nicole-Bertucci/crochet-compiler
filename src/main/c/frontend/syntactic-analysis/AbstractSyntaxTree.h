@@ -73,52 +73,39 @@ enum StitchItemKind {
 
 /* ─── AST node structs ──────────────────────────────────────── */
 
-/**
- * A single property inside a patternInfo { } block:
- *   Shape: linear;  |  Max_width: 22;  |  etc.
- */
+
 struct InfoProp {
 	InfoPropKind kind;
 	union {
-		ShapeType shapeValue;   /* INFO_SHAPE */
-		int       intValue;     /* INFO_MAX_WIDTH / INFO_MAX_RING_SIZE / INFO_ROWS */
+		ShapeType shapeValue;   
+		int       intValue;     
 	};
 };
 
-/** Linked list of InfoProp nodes. */
+
 struct InfoPropList {
 	InfoProp    * prop;
 	InfoPropList * next;
 };
 
-/**
- * patternInfo NAME { infoPropList }
- */
 struct PatternInfo {
 	char         * name;
 	InfoPropList * props;
 };
 
-/**
- * Row range: either a single row number ("row N:") or a range ("row N-M:").
- */
+
 struct RowRange {
 	int from;
-	int to;   /* equals from when not a range */
+	int to;
 };
 
-/**
- * A single stitch item inside a row:
- *   - simple:  stitchBase [modifier] [count]
- *   - repeat:  [ stitchList ] x N
- */
 struct StitchItem {
 	StitchItemKind kind;
 	union {
 		struct {
 			StitchType   type;
 			ModifierType modifier;
-			int          count;   /* default 1 when omitted */
+			int          count;   
 		} simple;
 		struct {
 			StitchList * list;
@@ -127,46 +114,37 @@ struct StitchItem {
 	};
 };
 
-/** Linked list of StitchItem nodes (one row's worth of stitches). */
+
 struct StitchList {
 	StitchItem * item;
 	StitchList * next;
 };
 
-/**
- * One row declaration:  row <rowRange>: <stitchList>
- */
+
 struct RowDecl {
 	RowRange   * range;
 	StitchList * stitches;
 };
 
-/** Linked list of RowDecl nodes. */
+
 struct RowList {
 	RowDecl * row;
 	RowList * next;
 };
 
-/**
- * pattern NAME { rowList }
- */
 struct PatternBody {
 	char    * name;
 	RowList * rows;
 };
 
-/**
- * One complete pattern = patternInfo block + pattern block.
- */
+
 struct PatternDef {
 	PatternInfo * info;
 	PatternBody * body;
 	PatternDef  * next;  /* sibling in the program's list */
 };
 
-/**
- * Root of the entire program: a list of PatternDef nodes.
- */
+
 struct Program {
 	PatternDef * patterns;
 };

@@ -119,7 +119,7 @@ InfoProp * RowsPropSemanticAction(int value) {
 PatternBody * PatternBodySemanticAction(char * name, RowList * rows) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	PatternBody * pb = calloc(1, sizeof(PatternBody));
-	pb->name = name;   /* already strdup'd in FlexActions */
+	pb->name = name;
 	pb->rows = rows;
 	return pb;
 }
@@ -202,7 +202,7 @@ StitchItem * SimpleStitchNoCountSemanticAction(StitchType type, ModifierType mod
 	si->kind            = STITCH_ITEM_SIMPLE;
 	si->simple.type     = type;
 	si->simple.modifier = mod;
-	si->simple.count    = 1;   /* default when omitted */
+	si->simple.count    = 1;
 	return si;
 }
 
