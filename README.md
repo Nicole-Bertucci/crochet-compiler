@@ -13,6 +13,7 @@ El lenguaje permite definir patrones de crochet mediante instrucciones estructur
 
 A partir de esta especificación, el compilador procesa el patrón y genera un diagrama visual que representa el tejido.
 
+Para la segunda entrega es necesario notar que algunos de los test no fallan ya que todavía se debe aplicar el backend para que se haga esta comprobación. Se espera que para esta entrega no fallen (aunque deberían) los tests : 01, 02, 
 
 [![✗](https://img.shields.io/badge/Release-v2.0.0-ffb600.svg?style=for-the-badge)](https://github.com/agustin-golmar/Flex-Bison-Compiler/releases)
 
