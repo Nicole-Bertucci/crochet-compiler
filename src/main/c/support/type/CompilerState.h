@@ -1,5 +1,6 @@
 #ifndef COMPILER_STATE_HEADER
 #define COMPILER_STATE_HEADER
+
 #include "../../frontend/syntactic-analysis/AbstractSyntaxTree.h"
 
 /**
@@ -7,23 +8,26 @@
  * needed across the different phases of a compilation.
  */
 typedef struct {
-	/**
-	 * The root node of the AST.
-	 */
-	Program * abstractSyntaxtTree;
-
-	/**
-	 * The computed value of the entire program (only for the calculator). You
-	 * should change or remove this field, or a random child will die, and it
-	 * will be your fault.
-	 */
-	signed int value;
-
-	// TODO: Add a symbol table.
-	// TODO: Add an stack to handle nested scopes.
-	// TODO: Add more configuration.
-	// TODO: Add whatever you need.
-	// TODO: ...
+    /**
+     * The root node of the AST.
+     */
+    Program * abstractSyntaxtTree;
+    /**
+     * Path to the input source file. Used by the generator to derive the
+     * output SVG filename (same path, .svg extension).
+     */
+    const char * inputFilePath;
+    /**
+     * The computed value of the entire program (only for the calculator). You
+     * should change or remove this field, or a random child will die, and it
+     * will be your fault.
+     */
+    signed int value;
+    // TODO: Add a symbol table.
+    // TODO: Add an stack to handle nested scopes.
+    // TODO: Add more configuration.
+    // TODO: Add whatever you need.
+    // TODO: ...
 } CompilerState;
 
 #endif

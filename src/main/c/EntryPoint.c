@@ -1,5 +1,3 @@
-
-
 #include "frontend/Frontend.h"
 #include "frontend/lexical-analysis/FlexActions.h"
 #include "frontend/syntactic-analysis/BisonActions.h"
@@ -16,29 +14,32 @@
  * find you, and I will kill you (Bryan Mills; "Taken", 2008).
  */
 const int main(const int length, const char ** arguments) {
-	LexicalAnalyzer * lexicalAnalyzer = createLexicalAnalyzer();
-	Logger * logger = createLogger("EntryPoint");
-	for (int k = 0; k < length; ++k) {
-		logDebugging(logger, "Argument %d: \"%s\"", k, arguments[k]);
-	}
-	CompilerState compilerState = {
-		.abstractSyntaxtTree = NULL,
-		.value = 0
-	};
-	ModuleDestructor moduleDestructors[] = {
-		initializeAbstractSyntaxTreeModule(),
-		initializeFlexActionsModule(lexicalAnalyzer),
-		initializeBisonActionsModule(&compilerState),
-		initializeFrontendModule(lexicalAnalyzer),
+    LexicalAnalyzer * lexicalAnalyzer = createLexicalAnalyzer();
+    Logger * logger = createLogger("EntryPoint");
+    for (int k = 0; k < length; ++k) {
+        logDebugging(logger, "Argument %d: \"%s\"", k, arguments[k]);
+    }
+    CompilerState compilerState = {
+        .abstractSyntaxtTree = NULL,
+        .inputFilePath = (length > 1) ? arguments[1] : "output",
+        .value = 0
+    };
+    ModuleDestructor moduleDestructors[] = {
+        initializeAbstractSyntaxTreeModule(),
+        initializeFlexActionsModule(lexicalAnalyzer),
+        initializeBisonActionsModule(&compilerState),
+        initializeFrontendModule(lexicalAnalyzer),
+    };
+    CompilationStatus compilationStatus = executeSyntacticAnalysis();
+    Program * program = compilerState.abstractSyntaxtTree;
+    if (compilationStatus == SUCCEEDED) {
+        // ----------------------------------------------------------------------------------------
+        // Beginning of the Backend... ------------------------------------------------------------
 
-	};
-	CompilationStatus compilationStatus = executeSyntacticAnalysis();
-	Program * program = compilerState.abstractSyntaxtTree;
-	if (compilationStatus == SUCCEEDED) {
-		        initializeSemanticAnalyzerModule();
+        initializeSemanticAnalyzerModule();
         compilationStatus = executeSemanticAnalysis(program);
         shutdownSemanticAnalyzerModule();
- 
+
         if (compilationStatus == SUCCEEDED) {
             ModuleDestructor destroyGenerator = initializeGeneratorModule();
             executeGenerator(&compilerState);
@@ -48,18 +49,20 @@ const int main(const int length, const char ** arguments) {
             logError(logger, "The semantic-analysis phase rejects the input program.");
         }
 
-	}
-	else {
-		logError(logger, "The syntactic-analysis phase rejects the input program.");
-		compilationStatus = FAILED;
-	}
-	logDebugging(logger, "Releasing AST resources...");
-	destroyProgram(program);
-	for (int k = (sizeof(moduleDestructors)/sizeof(ModuleDestructor)) - 1; 0 <= k; --k) {
-		moduleDestructors[k]();
-	}
-	logDebugging(logger, "Compilation is done.");
-	destroyLogger(logger);
-	destroyLexicalAnalyzer(lexicalAnalyzer);
-	return compilationStatus;
+        // ...end of the Backend. -----------------------------------------------------------------
+        // ----------------------------------------------------------------------------------------
+    }
+    else {
+        logError(logger, "The syntactic-analysis phase rejects the input program.");
+        compilationStatus = FAILED;
+    }
+    logDebugging(logger, "Releasing AST resources...");
+    destroyProgram(program);
+    for (int k = (sizeof(moduleDestructors)/sizeof(ModuleDestructor)) - 1; 0 <= k; --k) {
+        moduleDestructors[k]();
+    }
+    logDebugging(logger, "Compilation is done.");
+    destroyLogger(logger);
+    destroyLexicalAnalyzer(lexicalAnalyzer);
+    return compilationStatus;
 }
