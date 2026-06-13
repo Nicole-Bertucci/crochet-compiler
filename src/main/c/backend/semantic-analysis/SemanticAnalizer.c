@@ -23,16 +23,15 @@ void shutdownSemanticAnalyzerModule() {
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 
-
 static int _countStitches(StitchList * list) {
     int total = 0;
     for (StitchList * sl = list; sl != NULL; sl = sl->next) {
         StitchItem * item = sl->item;
         if (item->kind == STITCH_ITEM_SIMPLE) {
-            int base = item->simple.count; /* always ≥ 1 after validation */
+            int base = item->simple.count;
             switch (item->simple.modifier) {
-                case MT_INC: total += base * 2; break;  /* each inc produces 2 */
-                case MT_DEC: total += base;     break;  /* each dec consumes 2→1 */
+                case MT_INC: total += base * 2; break;  
+                case MT_DEC: total += base;     break; 
                 default:     total += base;     break;
             }
         } else { 
@@ -84,7 +83,7 @@ static bool _validateDecModifiers(StitchList * list, const char * patternName, i
         StitchItem * item = sl->item;
         if (item->kind == STITCH_ITEM_SIMPLE) {
             if (item->simple.modifier == MT_DEC) {
-            
+               
                 cumulative += item->simple.count * 2; 
                 if (cumulative < 2) {
                     logError(_logger,
@@ -97,7 +96,7 @@ static bool _validateDecModifiers(StitchList * list, const char * patternName, i
                 cumulative += (item->simple.modifier == MT_INC) ? base * 2 : base;
             }
         } else {
-           
+            
             cumulative += _countStitches(item->repeat.list) * item->repeat.times;
         }
     }
@@ -143,7 +142,7 @@ static bool _validateMR(RowList * rows, const char * patternName, ShapeType shap
         }
         firstRow = false;
     }
-   
+    
     if (shape == SHAPE_ROUND && rows != NULL) {
         RowDecl * first = rows->row;
         StitchList * firstStitch = first->stitches;
@@ -165,14 +164,13 @@ static bool _validateRowOrder(RowList * rows, const char * patternName) {
     int expected = 1;
     for (RowList * rl = rows; rl != NULL; rl = rl->next) {
         RowRange * rr = rl->row->range;
-        /* Range must be valid (from < to already checked elsewhere, but
-           we also need from == expected). */
+     
         if (rr->from != expected) {
             logError(_logger,
                 "Pattern '%s': expected row %d but found row %d.",
                 patternName, expected, rr->from);
             ok = false;
-            /* Advance expected to avoid cascading errors */
+           
             expected = _rangeEnd(rr);
             continue;
         }
@@ -194,7 +192,7 @@ static int _validatePatternInfo(PatternInfo * pi) {
     bool hasMaxWidth    = false;
     bool hasMaxRingSize = false;
     bool hasRows        = false;
-    ShapeType shape     = SHAPE_LINEAR; /* default, overwritten below */
+    ShapeType shape     = SHAPE_LINEAR; 
 
     for (InfoPropList * ipl = pi->props; ipl != NULL; ipl = ipl->next) {
         InfoProp * prop = ipl->prop;
@@ -312,7 +310,7 @@ static ShapeType _getShape(PatternInfo * pi) {
             return ipl->prop->shapeValue;
         }
     }
-    return SHAPE_LINEAR; 
+    return SHAPE_LINEAR;
 }
 
 
@@ -326,6 +324,79 @@ static int _countDeclaredRows(RowList * rows) {
 }
 
 
+static int _countConsumed(StitchList * list) {
+    int total = 0;
+    for (StitchList * sl = list; sl != NULL; sl = sl->next) {
+        StitchItem * item = sl->item;
+        if (item->kind == STITCH_ITEM_SIMPLE) {
+            int base = item->simple.count;
+            if (item->simple.type == ST_MR || item->simple.type == ST_CH) {
+                
+                continue;
+            }
+            if (item->simple.modifier == MT_DEC) {
+                total += base * 2;
+            } else {
+                total += base;
+            }
+        } else { 
+            total += _countConsumed(item->repeat.list) * item->repeat.times;
+        }
+    }
+    return total;
+}
+
+
+static bool _validateRowContinuity(RowList * rows, const char * patternName) {
+    bool ok = true;
+    int prevOutput = 0;  
+    bool isFirstRow = true;
+
+    for (RowList * rl = rows; rl != NULL; rl = rl->next) {
+        RowDecl * rd      = rl->row;
+        int       rowFrom = rd->range->from;
+        int       rangeSpan = rd->range->to - rd->range->from + 1;
+
+        int consumed = _countConsumed(rd->stitches);
+        int produced = _countStitches(rd->stitches);
+
+        if (isFirstRow) {
+            
+            if (consumed > 0) {
+                logError(_logger,
+                    "Pattern '%s', row %d: stitches that work into a previous row "
+                    "cannot appear in the first row (no prior row exists).",
+                    patternName, rowFrom);
+                ok = false;
+            }
+        } else {
+            
+            if (consumed > prevOutput) {
+                logError(_logger,
+                    "Pattern '%s', row %d: requires %d stitch(es) from the previous "
+                    "row but only %d are available.",
+                    patternName, rowFrom, consumed, prevOutput);
+                ok = false;
+            }
+        }
+
+        
+        for (int rep = 1; rep < rangeSpan; rep++) {
+            if (produced < consumed) {
+                logError(_logger,
+                    "Pattern '%s', row %d (repetition %d): requires %d stitch(es) "
+                    "but previous repetition only produced %d.",
+                    patternName, rowFrom + rep, rep + 1, consumed, produced);
+                ok = false;
+                break;
+            }
+        }
+
+        prevOutput  = produced;
+        isFirstRow  = false;
+    }
+    return ok;
+}
 
 CompilationStatus executeSemanticAnalysis(Program * program) {
     logDebugging(_logger, "Starting semantic analysis...");
@@ -337,7 +408,7 @@ CompilationStatus executeSemanticAnalysis(Program * program) {
 
     bool ok = true;
 
- 
+    
     for (PatternDef * pd = program->patterns; pd != NULL; pd = pd->next) {
         const char * name = pd->info ? pd->info->name : NULL;
         if (name == NULL) {
@@ -345,7 +416,7 @@ CompilationStatus executeSemanticAnalysis(Program * program) {
             ok = false;
             continue;
         }
-     
+        
         for (PatternDef * other = pd->next; other != NULL; other = other->next) {
             if (other->info && strcmp(other->info->name, name) == 0) {
                 logError(_logger, "Duplicate pattern name: '%s'.", name);
@@ -354,7 +425,7 @@ CompilationStatus executeSemanticAnalysis(Program * program) {
         }
     }
 
-  
+    
     for (PatternDef * pd = program->patterns; pd != NULL; pd = pd->next) {
         PatternInfo * pi   = pd->info;
         PatternBody * body = pd->body;
@@ -368,7 +439,7 @@ CompilationStatus executeSemanticAnalysis(Program * program) {
         const char * infoName = pi->name;
         const char * bodyName = body->name;
 
-     
+       
         if (strcmp(infoName, bodyName) != 0) {
             logError(_logger,
                 "patternInfo name '%s' does not match pattern body name '%s'.",
@@ -376,37 +447,43 @@ CompilationStatus executeSemanticAnalysis(Program * program) {
             ok = false;
         }
 
-     
+        
         const char * pname = infoName;
 
         /* Validate patternInfo properties */
         int shapeInt = _validatePatternInfo(pi);
         if (shapeInt < 0) {
             ok = false;
-         
+           
             continue;
         }
         ShapeType shape = (ShapeType)shapeInt;
 
         RowList * rows = body->rows;
 
-
+        
         if (rows == NULL) {
             logError(_logger, "Pattern '%s': has no rows.", pname);
             ok = false;
             continue;
         }
 
-      
+        
         if (!_validateRowOrder(rows, pname)) {
             ok = false;
         }
 
-    
+        
         if (!_validateMR(rows, pname, shape)) {
             ok = false;
         }
 
+       
+        if (!_validateRowContinuity(rows, pname)) {
+            ok = false;
+        }
+
+        
         for (RowList * rl = rows; rl != NULL; rl = rl->next) {
             RowDecl * rd    = rl->row;
             int       rowFrom = rd->range->from;
@@ -452,7 +529,7 @@ CompilationStatus executeSemanticAnalysis(Program * program) {
         } else { 
             int maxRingSize = _getIntProp(pi, INFO_MAX_RING_SIZE);
             if (maxRingSize > 0) {
-                /* Find the last row in the list */
+            
                 RowList * lastRl = rows;
                 while (lastRl->next != NULL) {
                     lastRl = lastRl->next;
