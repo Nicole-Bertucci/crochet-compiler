@@ -15,9 +15,9 @@ static FILE   * _outputFile = NULL;
 #define CELL_SIZE       28
 #define RING_STEP       30
 #define INNER_RADIUS    20
-#define PADDING         50
+#define PADDING         60
 #define FONT_SIZE       10
-#define PATTERN_GAP     60
+#define PATTERN_GAP     2
 #define STITCH_DOT_R    8
 #define LEGEND_ROW_H    20
 
@@ -493,7 +493,7 @@ static void _generateRoundPattern(const char * name, PatternInfo * pi, RowList *
     _out("  <text x=\"%.1f\" y=\"%.1f\" font-size=\"15\""
          " font-family=\"Times New Roman\" font-weight=\"bold\" fill=\"#111111\""
          " text-anchor=\"middle\">%s</text>\n",
-         cx, offsetY + PADDING - 18, name);
+         cx, offsetY + PADDING - 25, name);
 
     int maxRingSize = -1;
     for (InfoPropList * ipl = pi->props; ipl != NULL; ipl = ipl->next) {
@@ -504,7 +504,7 @@ static void _generateRoundPattern(const char * name, PatternInfo * pi, RowList *
     _out("  <text x=\"%.1f\" y=\"%.1f\" font-size=\"10\""
          " font-family=\"Times New Roman\" fill=\"#111111\""
          " text-anchor=\"middle\">number of rows: %d</text>\n",
-         cx, offsetY + PADDING - 6, nRings);
+         cx, offsetY + PADDING - 13, nRings);
 
     UsedStitches us;
     _collectUsedStitches(rows, &us);

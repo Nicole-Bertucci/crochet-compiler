@@ -1,7 +1,7 @@
 patternInfo Sock{
-Shape: linear;
-Max_width: 4;
-Rows: 10;
+shape: linear;
+maxWidth: 4;
+rows: 10;
 }
 pattern Sock{
 row 1: ch 4

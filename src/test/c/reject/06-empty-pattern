@@ -1,7 +1,7 @@
 patternInfo Toy{
-Shape: linear;
-Max_width: 0;
-Rows: 0;
+shape: linear;
+maxWidth: 0;
+rows: 0;
 }
 pattern Toy{
 

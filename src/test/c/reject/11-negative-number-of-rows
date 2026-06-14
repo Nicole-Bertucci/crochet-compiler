@@ -1,7 +1,7 @@
 patternInfo Basket{
-Shape: linear;
-Max_width: 24;
-Rows: 12;
+shape: linear;
+maxWidth: 24;
+rows: 12;
 }
 pattern Basket{
 row -1: ch 22

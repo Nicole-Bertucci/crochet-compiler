@@ -1,7 +1,7 @@
 patternInfo MateSleeve{
-Shape: linear;
-Max_width: 8;
-Rows: 1;
+shape: linear;
+maxWidth: 8;
+rows: 1;
 }
 pattern MateSleeve{
 row 1: sc-inc 4

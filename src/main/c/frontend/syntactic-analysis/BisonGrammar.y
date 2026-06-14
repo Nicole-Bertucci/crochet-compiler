@@ -75,7 +75,7 @@ void yyerror(const YYLTYPE * location, const char * message) {}
 %token <token>    MAX_RING_SIZE
 %token <token>    ROWS
 
-/* Shape values */
+/* shape values */
 %token <token>    LINEAR
 %token <token>    ROUND
 

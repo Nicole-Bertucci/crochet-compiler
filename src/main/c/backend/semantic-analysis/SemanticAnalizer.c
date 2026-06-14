@@ -200,7 +200,7 @@ static int _validatePatternInfo(PatternInfo * pi) {
             case INFO_SHAPE:
                 if (hasShape) {
                     logError(_logger,
-                        "Pattern '%s': duplicate 'Shape' property.", pi->name);
+                        "Pattern '%s': duplicate 'shape' property.", pi->name);
                     ok = false;
                 }
                 hasShape = true;
@@ -209,13 +209,13 @@ static int _validatePatternInfo(PatternInfo * pi) {
             case INFO_MAX_WIDTH:
                 if (hasMaxWidth) {
                     logError(_logger,
-                        "Pattern '%s': duplicate 'Max_width' property.", pi->name);
+                        "Pattern '%s': duplicate 'maxWidth' property.", pi->name);
                     ok = false;
                 }
                 hasMaxWidth = true;
                 if (prop->intValue < 1) {
                     logError(_logger,
-                        "Pattern '%s': Max_width must be >= 1 (got %d).",
+                        "Pattern '%s': maxWidth must be >= 1 (got %d).",
                         pi->name, prop->intValue);
                     ok = false;
                 }
@@ -223,13 +223,13 @@ static int _validatePatternInfo(PatternInfo * pi) {
             case INFO_MAX_RING_SIZE:
                 if (hasMaxRingSize) {
                     logError(_logger,
-                        "Pattern '%s': duplicate 'Max_ring_size' property.", pi->name);
+                        "Pattern '%s': duplicate 'maxRingSize' property.", pi->name);
                     ok = false;
                 }
                 hasMaxRingSize = true;
                 if (prop->intValue < 1) {
                     logError(_logger,
-                        "Pattern '%s': Max_ring_size must be >= 1 (got %d).",
+                        "Pattern '%s': maxRingSize must be >= 1 (got %d).",
                         pi->name, prop->intValue);
                     ok = false;
                 }
@@ -237,13 +237,13 @@ static int _validatePatternInfo(PatternInfo * pi) {
             case INFO_ROWS:
                 if (hasRows) {
                     logError(_logger,
-                        "Pattern '%s': duplicate 'Rows' property.", pi->name);
+                        "Pattern '%s': duplicate 'rows' property.", pi->name);
                     ok = false;
                 }
                 hasRows = true;
                 if (prop->intValue < 1) {
                     logError(_logger,
-                        "Pattern '%s': Rows must be >= 1 (got %d).",
+                        "Pattern '%s': rows must be >= 1 (got %d).",
                         pi->name, prop->intValue);
                     ok = false;
                 }
@@ -252,7 +252,7 @@ static int _validatePatternInfo(PatternInfo * pi) {
     }
 
     if (!hasShape) {
-        logError(_logger, "Pattern '%s': missing required 'Shape' property.", pi->name);
+        logError(_logger, "Pattern '%s': missing required 'shape' property.", pi->name);
         ok = false;
         return -1; 
     }
@@ -260,33 +260,33 @@ static int _validatePatternInfo(PatternInfo * pi) {
     if (shape == SHAPE_LINEAR) {
         if (!hasMaxWidth) {
             logError(_logger,
-                "Pattern '%s': Linear pattern requires 'Max_width'.", pi->name);
+                "Pattern '%s': Linear pattern requires 'maxWidth'.", pi->name);
             ok = false;
         }
         if (!hasRows) {
             logError(_logger,
-                "Pattern '%s': Linear pattern requires 'Rows'.", pi->name);
+                "Pattern '%s': Linear pattern requires 'rows'.", pi->name);
             ok = false;
         }
         if (hasMaxRingSize) {
             logError(_logger,
-                "Pattern '%s': Linear pattern must not have 'Max_ring_size'.", pi->name);
+                "Pattern '%s': Linear pattern must not have 'maxRingSize'.", pi->name);
             ok = false;
         }
     } else { 
         if (!hasMaxRingSize) {
             logError(_logger,
-                "Pattern '%s': Round pattern requires 'Max_ring_size'.", pi->name);
+                "Pattern '%s': Round pattern requires 'maxRingSize'.", pi->name);
             ok = false;
         }
         if (hasMaxWidth) {
             logError(_logger,
-                "Pattern '%s': Round pattern must not have 'Max_width'.", pi->name);
+                "Pattern '%s': Round pattern must not have 'maxWidth'.", pi->name);
             ok = false;
         }
         if (hasRows) {
             logError(_logger,
-                "Pattern '%s': Round pattern must not have 'Rows'.", pi->name);
+                "Pattern '%s': Round pattern must not have 'rows'.", pi->name);
             ok = false;
         }
     }
@@ -509,7 +509,7 @@ CompilationStatus executeSemanticAnalysis(Program * program) {
             int actualRows   = _countDeclaredRows(rows);
             if (declaredRows > 0 && actualRows != declaredRows) {
                 logError(_logger,
-                    "Pattern '%s': declared Rows=%d but body contains %d row(s).",
+                    "Pattern '%s': declared rows=%d but body contains %d row(s).",
                     pname, declaredRows, actualRows);
                 ok = false;
             }
@@ -520,7 +520,7 @@ CompilationStatus executeSemanticAnalysis(Program * program) {
                     int width = _countStitches(rl->row->stitches);
                     if (width > maxWidth) {
                         logError(_logger,
-                            "Pattern '%s', row %d: stitch count %d exceeds Max_width=%d.",
+                            "Pattern '%s', row %d: stitch count %d exceeds maxWidth=%d.",
                             pname, rl->row->range->from, width, maxWidth);
                         ok = false;
                     }
@@ -537,7 +537,7 @@ CompilationStatus executeSemanticAnalysis(Program * program) {
                 int lastWidth = _countStitches(lastRl->row->stitches);
                 if (lastWidth > maxRingSize) {
                     logError(_logger,
-                        "Pattern '%s', last row %d: stitch count %d exceeds Max_ring_size=%d.",
+                        "Pattern '%s', last row %d: stitch count %d exceeds maxRingSize=%d.",
                         pname, lastRl->row->range->from, lastWidth, maxRingSize);
                     ok = false;
                 }

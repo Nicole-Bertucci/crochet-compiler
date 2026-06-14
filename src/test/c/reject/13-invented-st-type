@@ -1,7 +1,7 @@
 patternInfo Scarf{
-Shape: linear;
-Max_width: 22;
-Rows: 12;
+shape: linear;
+maxWidth: 22;
+rows: 12;
 }
 pattern Scarf{
 row 1: tsc 5

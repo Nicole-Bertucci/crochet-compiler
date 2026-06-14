@@ -28,7 +28,7 @@ extern CompilationStatus LeaveMultilineCommentLexemeAction();
 // Keywords
 extern CompilationStatus KeywordLexemeAction(TokenLabel label);
 
-// Shape Types
+// shape Types
 extern CompilationStatus ShapeTypeLexemeAction(TokenLabel label);
 
 //Stitch types
@@ -84,10 +84,10 @@ identifier		{letter}([[:alnum:]]|_)*
 "patternInfo"						{ return KeywordLexemeAction(PATTERN_INFO); }
 "pattern"							{ return KeywordLexemeAction(PATTERN); }
 "row"								{ return KeywordLexemeAction(ROW); }
-"Shape"								{ return KeywordLexemeAction(SHAPE); }
-"Max_width"							{ return KeywordLexemeAction(MAX_WIDTH); }
-"Max_ring_size"						{ return KeywordLexemeAction(MAX_RING_SIZE); }
-"Rows"								{ return KeywordLexemeAction(ROWS); }
+"shape"								{ return KeywordLexemeAction(SHAPE); }
+"maxWidth"							{ return KeywordLexemeAction(MAX_WIDTH); }
+"maxRingSize"						{ return KeywordLexemeAction(MAX_RING_SIZE); }
+"rows"								{ return KeywordLexemeAction(ROWS); }
 
 
 "linear"							{ return ShapeTypeLexemeAction(LINEAR); }

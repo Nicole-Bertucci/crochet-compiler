@@ -117,7 +117,7 @@ CompilationStatus KeywordLexemeAction(TokenLabel label) {
 	return _simplePushToken(__FUNCTION__, label);
 }
 
-/* ── Shape types ──────────────────────────────────────────────── */
+/* ── shape types ──────────────────────────────────────────────── */
 
 CompilationStatus ShapeTypeLexemeAction(TokenLabel label) {
 	return _simplePushToken(__FUNCTION__, label);

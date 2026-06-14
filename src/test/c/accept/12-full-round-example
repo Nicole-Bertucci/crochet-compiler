@@ -1,6 +1,6 @@
 patternInfo Coaster{
-Shape: round;
-Max_ring_size: 24;
+shape: round;
+maxRingSize: 24;
 }
 
 pattern Coaster{
