@@ -2,18 +2,69 @@
 # Compilador de Patron de Crochet DSL a SVG
 Este proyecto consiste en el diseño e implementación de un lenguaje específico de dominio (DSL) para describir patrones de crochet de forma textual, junto con un compilador que genera una representación visual en formato SVG.
 
+ Este proyecto utilizo como base el repositorio https://github.com/agustin-golmar/Flex-Bison-Compiler.
+
 ## Descripcion
 El lenguaje permite definir patrones de crochet mediante instrucciones estructuradas que describen:
 
 * Tipo de patrón (circular o lineal)	
 * Filas (row)	
 * Tipos de stitches (puntos)	
-* Aumentos, disminuciones y modificadores	
+* Modificadores: aumentos, disminuciones, front loop only, back loop only	
 * Repeticiones de secuencias
 
-A partir de esta especificación, el compilador procesa el patrón y genera un diagrama visual que representa el tejido.
+A partir de esta especificación, el compilador procesa el patrón y genera un diagrama visual en SVG que representa el tejido.
 
-Para la segunda entrega es necesario notar que algunos de los test no fallan ya que todavía se debe aplicar el backend para que se haga esta comprobación. Se espera que para esta entrega no fallen (aunque deberían) los tests : 01, 02, 
+## Manual de uso
+
+### Requerimientos
+Es necesario tener [Docker v28.3.2](https://www.docker.com/)
+
+### Comandos
+
+#### Comenzar
+
+Crea un contenedor efímero, listo para empezar development:
+
+```bash
+docker compose run --rm compiler
+```
+### Constuir
+
+Construye el compilador:
+
+```bash
+src/main/bash/build.sh
+```
+
+### Correr
+
+Compila un programa:
+
+```bash
+src/main/bash/run.sh <programa>
+```
+
+donde `<programa>` es el path del archivo a compilar.
+
+### Testeo
+
+Ejecuta todos los unit tests que estan ubicados en  `src/test/c`:
+
+```bash
+src/main/bash/test.sh
+```
+
+### Finalizar
+
+Destuye el contenedor efímero:
+
+```bash
+exit
+docker compose down
+```
+
+A continuación el README original del repositorio base para compiladores de Flex-Bison.
 
 [![✗](https://img.shields.io/badge/Release-v2.0.0-ffb600.svg?style=for-the-badge)](https://github.com/agustin-golmar/Flex-Bison-Compiler/releases)
 
@@ -34,6 +85,7 @@ A base compiler example, developed with Flex and Bison.
 * [Docker v28.3.2](https://www.docker.com/)
 
 ## Configuration
+
 
 Set the following environment variables to control and configure the behaviour of the application:
 
