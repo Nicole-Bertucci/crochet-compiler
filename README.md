@@ -39,7 +39,7 @@ src/main/bash/build.sh
 
 ### Correr
 
-Compila un programa:
+Compila un programa y genera el archivo resultante en el mismo directorio que el archivo fuente:
 
 ```bash
 src/main/bash/run.sh <programa>
